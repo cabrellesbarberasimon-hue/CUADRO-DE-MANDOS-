@@ -1,0 +1,7 @@
+{
+  "crons": [
+    { "path": "/api/cron/resumen-semanal", "schedule": "0 7 * * 1" },
+    { "path": "/api/cron/recordatorio", "schedule": "0 10 * * 1" },
+    { "path": "/api/cron/acciones", "schedule": "0 6 * * *" }
+  ]
+}

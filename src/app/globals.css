@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+/* Tokens de marca Bocubi (ver src/config/theme.ts para los colores de gráficos) */
+@theme {
+  --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+
+  --color-bg: #ffffff;
+  --color-bone: #f4f2ee;
+  --color-ink: #1a1a1a;
+  --color-muted: #6b6b6b;
+  --color-line: #e4e1db;
+  --color-walnut: #6b4a32;
+  --color-walnut-light: #a07855;
+  --color-concrete: #8e8c87;
+
+  --color-ok: #3f7d58;
+  --color-ok-bg: #e7f1ea;
+  --color-warn: #a87a17;
+  --color-warn-bg: #f8efd9;
+  --color-bad: #b4432f;
+  --color-bad-bg: #f6e3df;
+  --color-none: #8a8781;
+  --color-none-bg: #efede9;
+}
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+
+body {
+  font-feature-settings: "tnum" 1;
+}
+
+.tracking-nav {
+  letter-spacing: 0.08em;
+}
+
+/* Tablas de datos */
+.data-table {
+  @apply w-full text-sm border-collapse;
+}
+.data-table th {
+  @apply text-left font-medium text-muted text-xs uppercase tracking-wide px-3 py-2 border-b border-line bg-bone whitespace-nowrap;
+}
+.data-table td {
+  @apply px-3 py-2 border-b border-line align-top;
+}
+.data-table td.num,
+.data-table th.num {
+  @apply text-right tabular-nums whitespace-nowrap;
+}
+
+.input {
+  @apply w-full rounded-md border border-line bg-white px-3 py-2 text-sm outline-none focus:border-ink focus:ring-1 focus:ring-ink disabled:bg-bone disabled:text-muted;
+}
+.label {
+  @apply block text-xs font-medium text-muted mb-1;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    font-size: 11px;
+  }
+  .print-break {
+    break-before: page;
+  }
+  @page {
+    margin: 12mm;
+  }
+}
