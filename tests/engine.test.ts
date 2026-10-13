@@ -138,3 +138,16 @@ describe("% vs año anterior homogéneo", () => {
     expect(value(rows, "sales_vs_prev_year").value).toBeCloseTo(19905 / 44073.75 - 1);
   });
 });
+
+describe("variable de base de datos", () => {
+  it("acepta DATABASE_URL con prefijo de Neon", async () => {
+    const { databaseUrl } = await import("@/lib/db/client");
+    const saved = { ...process.env };
+    delete process.env.DATABASE_URL;
+    delete process.env.POSTGRES_URL;
+    process.env.CUADRO_DATABASE_URL_UNPOOLED = "postgres://unpooled";
+    process.env.CUADRO_DATABASE_URL = "postgres://pooled";
+    expect(databaseUrl()).toBe("postgres://pooled");
+    process.env = saved;
+  });
+});

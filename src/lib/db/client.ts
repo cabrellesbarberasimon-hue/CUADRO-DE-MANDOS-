@@ -16,8 +16,18 @@ type GlobalCache = { driver?: Promise<Driver>; ready?: Promise<void> };
 const g = globalThis as unknown as { __bocubiDb?: GlobalCache };
 const cache: GlobalCache = (g.__bocubiDb ??= {});
 
+/**
+ * URL de Postgres. Al conectar Neon desde Vercel, las variables pueden llevar un prefijo elegido
+ * al conectar (p. ej. CUADRO_DATABASE_URL o STORAGE_POSTGRES_URL), así que se aceptan todas.
+ */
 export function databaseUrl(): string | undefined {
-  return process.env.DATABASE_URL || process.env.POSTGRES_URL || undefined;
+  if (process.env.DATABASE_URL) return process.env.DATABASE_URL;
+  if (process.env.POSTGRES_URL) return process.env.POSTGRES_URL;
+  const keys = Object.keys(process.env).sort();
+  const key =
+    keys.find((k) => /(^|_)DATABASE_URL$/.test(k) && process.env[k]) ??
+    keys.find((k) => /(^|_)POSTGRES_URL$/.test(k) && process.env[k]);
+  return key ? process.env[key] : undefined;
 }
 
 /** true si la app está en producción sin base de datos configurada. */
