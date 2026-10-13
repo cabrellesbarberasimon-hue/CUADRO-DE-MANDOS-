@@ -88,7 +88,7 @@ export async function confirmImport(payload: { filename: string; mapping: string
     if (res.created || res.changes) touched.push({ year: row.year, week: row.week });
   }
   await q(
-    `insert into imports (filename, mapping, user_id, created_count, updated_count, rejected_count, log) values ($1,$2,$3,$4,$5,$6,$7::jsonb)`,
+    `insert into imports (filename, mapping, user_id, created_count, updated_count, rejected_count, log) values ($1,$2,$3,$4,$5,$6,$7::text::jsonb)`,
     [payload.filename, payload.mapping, user.id, created, updated, payload.issues.length, JSON.stringify(payload.issues)],
   );
   // Aviso de KPIs en rojo solo para la última semana importada (la relevante para la reunión)

@@ -34,9 +34,9 @@ En **Settings → Environment Variables** añade estas variables:
 
 | Variable | Valor | ¿Obligatoria? |
 |---|---|---|
-| `AUTH_SECRET` | Una cadena aleatoria larga (por ejemplo, el resultado de `openssl rand -base64 32`) | Sí |
-| `SETUP_CODE` | Un código que tú elijas; se pide al crear el primer administrador | Sí |
-| `CRON_SECRET` | Otra cadena aleatoria; protege los avisos programados | Sí |
+| `AUTH_SECRET` | Una cadena aleatoria larga (por ejemplo, el resultado de `openssl rand -base64 32`). Si no existe, se deriva de la URL de la base de datos | Recomendada |
+| `SETUP_CODE` | Un código que tú elijas; se pide al crear el primer administrador. Si no existe, el primero que entra crea el administrador | Recomendada |
+| `CRON_SECRET` | Otra cadena aleatoria; sin ella los avisos programados no se ejecutan | Para los emails automáticos |
 | `APP_URL` | La URL de la app, por ejemplo `https://cuadro-de-mandos-bocubi.vercel.app` | Recomendada |
 | `RESEND_API_KEY` | Clave de [resend.com](https://resend.com), para enviar emails | Opcional |
 | `EMAIL_FROM` | Remitente, por ejemplo `Cuadro de Mandos Bocubi <kpi@bocubi.com>`. El dominio tiene que estar verificado en Resend | Opcional |

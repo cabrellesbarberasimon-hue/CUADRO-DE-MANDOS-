@@ -170,4 +170,13 @@ create table if not exists period_comments (
 );
 `,
   },
+  {
+    // Con el driver de Postgres los JSON se guardaban como texto ("{...}"). Los convierte a JSON real.
+    id: "003_reparar_json",
+    sql: `
+update settings set value = (value #>> '{}')::jsonb where jsonb_typeof(value) = 'string' and key <> 'seeded';
+update users set notify = (notify #>> '{}')::jsonb where jsonb_typeof(notify) = 'string';
+update imports set log = (log #>> '{}')::jsonb where jsonb_typeof(log) = 'string';
+`,
+  },
 ];

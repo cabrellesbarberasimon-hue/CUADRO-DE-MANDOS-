@@ -3,6 +3,14 @@
 
 export const CHANGELOG: { version: string; date: string; items: string[] }[] = [
   {
+    version: "1.0.1",
+    date: "2026-10-13",
+    items: [
+      "La app se pone en marcha en Vercel solo con la base de datos conectada (sin variables adicionales obligatorias).",
+      "Corregido: la configuración (capacidad de fábrica, umbrales, responsables, destinatarios) se guardaba como texto en Postgres.",
+    ],
+  },
+  {
     version: "1.0.0",
     date: "2026-10-13",
     items: [

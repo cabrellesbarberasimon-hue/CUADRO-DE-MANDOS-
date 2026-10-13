@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export default async function SetupPage() {
   if (missingDatabase()) redirect("/sin-base-de-datos");
   if ((await userCount()) > 0) redirect("/login");
-  const needsCode = Boolean(process.env.SETUP_CODE) || process.env.NODE_ENV === "production";
+  const needsCode = Boolean(process.env.SETUP_CODE);
   return (
     <AuthShell title="Puesta en marcha" subtitle="Crea la cuenta del primer administrador. Después podrás crear el resto de usuarios.">
       <StatefulForm action={setupAdmin} className="space-y-4">

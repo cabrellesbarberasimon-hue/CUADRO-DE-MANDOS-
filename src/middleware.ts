@@ -1,14 +1,14 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { SESSION_COOKIE, verifySession } from "@/lib/session";
+import { SESSION_COOKIE } from "@/lib/session";
 
 const PUBLIC = ["/login", "/setup", "/sin-base-de-datos", "/api/cron"];
 
-export async function middleware(req: NextRequest) {
+// Solo redirige a /login si no hay cookie de sesión. La firma se verifica en el servidor
+// (requireUser / getCurrentUser) en cada página y acción, que es lo que protege los datos.
+export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   if (PUBLIC.some((p) => pathname.startsWith(p))) return NextResponse.next();
-  const token = req.cookies.get(SESSION_COOKIE)?.value;
-  const uid = token ? await verifySession(token).catch(() => null) : null;
-  if (!uid) {
+  if (!req.cookies.get(SESSION_COOKIE)?.value) {
     const url = req.nextUrl.clone();
     url.pathname = "/login";
     url.search = "";

@@ -34,7 +34,7 @@ export async function seedIfEmpty(query: Query) {
     }
   }
   for (const [key, value] of Object.entries(DEFAULT_SETTINGS)) {
-    await query(`insert into settings (key, value) values ($1, $2::jsonb) on conflict do nothing`, [key, JSON.stringify(value)]);
+    await query(`insert into settings (key, value) values ($1, $2::text::jsonb) on conflict do nothing`, [key, JSON.stringify(value)]);
   }
   await query(`insert into settings (key, value) values ('seeded', 'true'::jsonb) on conflict do nothing`);
 }

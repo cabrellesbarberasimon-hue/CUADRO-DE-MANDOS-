@@ -39,8 +39,9 @@ export async function setupAdmin(_: FormState, form: FormData): Promise<FormStat
   if ((await userCount()) > 0) return { error: "La app ya está configurada. Inicia sesión." };
   const parsed = setupSchema.safeParse(Object.fromEntries(form));
   if (!parsed.success) return { error: parsed.error.issues[0].message };
+  // Si SETUP_CODE está configurado se exige; si no, el primero que entra crea el administrador
+  // (la página se cierra en cuanto existe un usuario).
   const required = process.env.SETUP_CODE;
-  if (process.env.NODE_ENV === "production" && !required) return { error: "Falta configurar SETUP_CODE en el servidor." };
   if (required && parsed.data.code !== required) return { error: "Código de instalación incorrecto." };
   const hash = await hashPassword(parsed.data.password);
   const rows = await q<{ id: number }>(
@@ -73,6 +74,6 @@ export async function saveNotifications(form: FormData) {
     actions: form.get("actions") === "on",
     reminder: form.get("reminder") === "on",
   };
-  await q(`update users set notify = $1::jsonb where id = $2`, [JSON.stringify(notify), user.id]);
+  await q(`update users set notify = $1::text::jsonb where id = $2`, [JSON.stringify(notify), user.id]);
   redirect("/perfil?ok=1");
 }

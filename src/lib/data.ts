@@ -64,13 +64,22 @@ export async function getTargets(): Promise<TargetRow[]> {
 export async function getSettings(): Promise<Settings> {
   const rows = await q<{ key: string; value: unknown }>(`select key, value from settings`);
   const s = { ...DEFAULT_SETTINGS } as Record<string, unknown>;
-  for (const r of rows) if (r.key in DEFAULT_SETTINGS) s[r.key] = r.value;
+  for (const r of rows) {
+    if (!(r.key in DEFAULT_SETTINGS)) continue;
+    let v = r.value;
+    if (typeof v === "string") {
+      try {
+        v = JSON.parse(v); // valores antiguos guardados como texto
+      } catch {}
+    }
+    s[r.key] = v;
+  }
   return s as Settings;
 }
 
 export async function setSetting<K extends keyof Settings>(key: K, value: Settings[K]) {
   await q(
-    `insert into settings (key, value, updated_at) values ($1, $2::jsonb, now())
+    `insert into settings (key, value, updated_at) values ($1, $2::text::jsonb, now())
      on conflict (key) do update set value = excluded.value, updated_at = now()`,
     [key, JSON.stringify(value)],
   );
