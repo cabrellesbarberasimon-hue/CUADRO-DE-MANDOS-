@@ -58,6 +58,13 @@ negocio) que se actualice en cada cambio. Antes de cada commit: `lint`, `typeche
 - **Panel lateral** con un botón destacado **"+ Crear"** arriba. Despliega un menú rápido: factura,
   presupuesto, albarán, factura recibida, gasto, cliente, proveedor y producto. Plegado, el panel
   muestra solo iconos.
+- **Patrón común de los listados:** una caja con el título "Listado de …", un enlace plegable
+  **"Aplicar filtros"**, una tabla con las cabeceras subrayadas (ordenables), una columna
+  **Operaciones** con un menú de acciones por fila y, al pie, "Mostrando página 1 de N (X elementos en
+  total)". Arriba a la derecha, un icono ⚙ (columnas visibles y opciones del listado) y el botón principal.
+- **Patrón común de los formularios:** secciones plegables (cabecera con ^/v), botones arriba a la
+  derecha (⋮ más acciones · ← volver · acción secundaria · **acción principal**, desactivada hasta que
+  los campos obligatorios, marcados con *, estén completos) y ayudas ⓘ junto a los campos complejos.
 - **Migas de pan** encima del título de cada página (p. ej. `Inicio > Facturación > Registro de facturas
   emitidas`), y las acciones principales arriba a la derecha.
 - En el móvil, el panel lateral pasa a ser un menú desplegable y las tablas se desplazan en horizontal.
@@ -87,16 +94,20 @@ negocio) que se actualice en cada cambio. Antes de cada commit: `lint`, `typeche
 ### Inicio — Página principal
 
 Todo se calcula para la **empresa activa** y el **periodo elegido** (selector arriba a la derecha:
-trimestre `2026-4T`, mes o año). Bloques, de arriba abajo:
+un trimestre como `2026-4T`, o el año completo `2026`). Bloques, de arriba abajo:
 
 1. **Resumen.** Tres tarjetas:
    - **Ingresos:** total; % de variación frente al mismo periodo anterior (flecha y color); IVA
      repercutido; número de facturas.
    - **Gastos:** total; % de variación; IVA soportado imputable; número de facturas.
    - **Resultado:** ingresos − gastos; % de variación; IVA neto (repercutido − imputable).
-2. **Ingresos y gastos:** gráfico de barras por mes del periodo.
-3. **Facturas:** dos tarjetas, *Ingresos* y *Gastos*, con las últimas facturas o las mayores (importe,
-   cliente o proveedor, estado) y un botón *Ver más* que lleva al listado.
+2. **Ingresos y gastos:** gráfico de líneas por mes (enero … diciembre, más "Otros") con tres series:
+   *Ingresos* (azul), *Gastos* (rojo, discontinua) y *Beneficio acumulado* (gris).
+3. **Facturas:** dos tarjetas con un **gráfico de anillo** que muestra en el centro el número de
+   facturas del periodo:
+   - *Ingresos:* cobradas frente a "Facturas pendientes de cobro" y "Facturas vencidas".
+   - *Gastos:* "Facturas pagadas" frente a "Facturas pendientes de pago".
+   - Cada tarjeta tiene un desplegable *Ver más* con el detalle o el enlace al listado.
 4. **Cobros y pagos:** gráfico de los próximos meses con cuatro series: *Cobrado*, *Previsión de cobro*
    (vencimientos pendientes), *Pagado* y *Previsión de pago*.
 5. **Tesorería — últimos movimientos:** gráfico de los últimos 12 meses con *Cobros* y *Pagos*.
@@ -179,12 +190,144 @@ trimestre `2026-4T`, mes o año). Bloques, de arriba abajo:
   Se crea una **factura recibida en borrador** para revisar. Nunca se contabiliza sin confirmación.
 - Si el NIF no existe, se propone crear el proveedor.
 
+### Ventas — Nueva factura emitida
+
+- Migas de pan: `Facturación > Registro de facturas emitidas > Nueva factura`.
+- Botones arriba a la derecha: ⋮ · ← · **Nuevo cliente** (alta rápida en un modal, sin salir de la
+  factura) · **Crear factura**.
+- **Aviso** si el periodo de trabajo está cerrado: "El periodo seleccionado está cerrado, por lo tanto,
+  no se podrán insertar nuevas facturas en él. Para crear nuevas facturas debes seleccionar un periodo
+  distinto". Debajo, el selector **"Está trabajando en el periodo"** (trimestre).
+- **Sección "Información de la factura":**
+  - **Cliente\*:** desplegable con buscador.
+  - **Número\*:** se rellena solo con el siguiente de la serie. Lleva un enlace **"Obtener número"**
+    para recalcularlo.
+  - **Serie\*:** p. ej. "Facturas normales", "Rectificativas"…
+  - **Fecha\*:** hoy, por defecto.
+  - **Fecha de vencimiento:** con botones rápidos **30 días · 60 días · 90 días · Sin fecha**.
+  - **Tipo de ingreso ⓘ:** cuenta contable de ventas (p. ej. `700. Venta de mercaderías` o
+    `705. Prestaciones de servicios`), con buscador.
+  - **Retención ⓘ:** "- Sin retención -", 15 %, 7 %, 19 %… (el valor por defecto depende del cliente y del
+    tipo de empresa).
+- **Sección "Conceptos":** una fila por concepto con:
+  - Concepto (texto multilínea).
+  - Base €.
+  - Cantidad (con botones − / +; por defecto 1,00).
+  - Descuento %.
+  - IVA (desplegable: 21 %, 10 %, 4 %, 0 %, exento…).
+  - Total de la línea €.
+  - Icono de papelera.
+
+  Debajo, **"+ Añadir otro concepto"** y el enlace **"Mostrar edición avanzada"**, que añade más campos
+  por línea: producto del catálogo, recargo de equivalencia, suplido, cuenta contable y unidades.
+- **Cuatro tarjetas de totales** que se recalculan al escribir: **Subtotal · IVA · Retención · Total**.
+- **Sección "Notas":**
+  - **Notas en la factura ⓘ:** se elige un texto guardado (con un icono para gestionarlos) o se
+    escribe a mano. Sale impresa en la factura.
+  - **Notas privadas ⓘ:** solo internas.
+  - **Etiquetas:** con el botón ⊕.
+- **Sección "Opciones avanzadas":**
+  - **Fecha de operación** (si es distinta de la de la factura).
+  - **Tipo de operación ⓘ:** "Nacional (si el destinatario tiene el domicilio social en España)",
+    Intracomunitaria, Exportación / fuera de la UE, Inversión del sujeto pasivo…
+  - Casillas: **Factura emitida en criterio de caja ⓘ** · **Operación de arrendamiento de inmuebles ⓘ** ·
+    **Marcar factura como cobrada ⓘ** (registra el cobro a la vez).
+- **Sección "Otros"** (plegada): moneda, idioma, varios vencimientos, provisiones de fondos aplicadas
+  y documento de origen (presupuesto o albarán). `[PENDIENTE captura de su contenido]`.
+
+### Compras — Nueva factura recibida
+
+- Igual que la emitida, con estas diferencias:
+  - Botones: ⋮ · ← · **Nuevo proveedor** · **Crear factura**.
+  - Arriba, una **zona para arrastrar el archivo**: "¡Ahorra tiempo! Arrastra aquí tu factura y deja
+    que nuestro OCR la contabilice por ti" (máximo 14 MB). Al soltarlo, se rellena el formulario.
+  - **Información de la factura:** Proveedor\* · Número\* (texto libre, el del proveedor) · Fecha\* ·
+    Fecha de vencimiento (30 / 60 / 90 días / Sin fecha) · **Tipo de gasto** (cuenta 6xx, p. ej.
+    `600. Compras de mercaderías (materiales)`, `624. Transportes…`) · **Imputación ⓘ** (% deducible,
+    100 por defecto) · Retención ⓘ.
+  - **Notas:** solo Notas privadas y Etiquetas.
+  - **Opciones avanzadas:** Fecha de operación · Tipo de operación ("Nacional (si el emisor tiene el
+    domicilio social en España)"…) · **Imputación a IVA ⓘ** (% del IVA deducible).
+  - Casillas: **Factura de un proveedor acogido al régimen de criterio de caja** · Operación de
+    arrendamiento de inmuebles · **Marcar factura como pagada**.
+  - Sección plegable **"Importar factura electrónica en formato FacturaE"**.
+- El archivo adjunto se guarda con la factura y se puede ver y descargar desde el panel de detalle.
+
+### Contactos — Clientes y Proveedores
+
+- Migas de pan: `Clientes y proveedores > Clientes`. Arriba a la derecha: ⚙ y **Nuevo cliente**.
+- **"Listado de clientes"** con "Aplicar filtros" (nombre, NIF, población, etiqueta). Columnas:
+  **Nombre · NIF · Dirección** (dirección, CP, población, provincia y país en una celda) **· Teléfono ·
+  Email · Operaciones**.
+- **Menú de Operaciones** (clientes):
+  - Ver contacto · Editar contacto · Adjuntar archivos a este cliente · Gestionar etiquetas
+  - Ver remesas y recibos girados a este cliente · Descargar vCard · **Copiar como proveedor**
+  - Eliminar contacto (solo si no tiene documentos; si los tiene, se archiva)
+- **Proveedores:** la misma pantalla. En el menú no aparece la opción de remesas, y "Copiar como
+  proveedor" pasa a ser **Copiar como cliente**.
+- **"Ver contacto"** abre la ficha con sus datos y pestañas: facturas, presupuestos, cobros o pagos
+  pendientes, archivos y notas.
+
+### Contactos — Nuevo cliente / Nuevo proveedor
+
+- Migas de pan: `Clientes y proveedores > Clientes > Nuevo cliente`. Botones: ← · ⚙ · **Crear**.
+- **Datos de facturación:** **NIF\*** (validado; si es extranjero, NIF-IVA o identificador del país) y
+  **Nombre o razón social\***.
+- **Dirección:** Dirección · Código postal · Población · Provincia · País (España por defecto). Enlace
+  "Mostrar dirección en el mapa".
+- **Secciones plegables:**
+  - **Ubicación en el mapa.**
+  - **Descuento:** % por defecto en sus facturas.
+  - **Datos bancarios:** IBAN, BIC y mandato SEPA (referencia y fecha de firma).
+  - **Datos de contacto:** persona, teléfonos, emails (varios, uno marcado para el envío de facturas)
+    y web.
+  - **Idioma y formato numérico por defecto** para facturas, presupuestos y albaranes (español/inglés;
+    `1.234,56` o `1,234.56`).
+  - **Otros:** forma de pago y vencimiento por defecto, retención, tipo de operación, cuenta contable,
+    etiquetas y notas.
+  - **Factura electrónica:** datos de Facturae y centros administrativos DIR3.
+
+### Bancos / Caja — Resumen de tesorería
+
+- Migas de pan: `Bancos / Caja > Resumen`.
+- Pestaña **"Cuentas bancarias y de tesorería"**: una tarjeta por cuenta (logo del banco, nombre de la
+  cuenta, IBAN abreviado y saldo), la tarjeta **Efectivo** (caja), la tarjeta **+ Nueva cuenta** y la
+  tarjeta **⚙ Configuración de cuentas**.
+- Pestaña **"Movimientos de los últimos 12 meses"**: gráfico de barras por mes con *Cobros* (verde, hacia
+  arriba) y *Pagos* (rojo, hacia abajo).
+
+### Bancos / Caja — Cobros y pagos
+
+- Migas de pan: `Bancos / Caja > Resumen > Cobros y pagos`. Botón **Nuevo cobro / pago manual**.
+- **"Listado de cobros y pagos"** con "Aplicar filtros" (fechas, tipo, método, estado de conciliación,
+  cuenta). Columnas:
+  - **Tipo de documento:** icono que distingue un cobro de factura emitida de un pago de factura recibida.
+  - **Documento vinculado:** número de la factura, con enlace.
+  - **Fecha.**
+  - **Importe:** cobros en verde y positivos; pagos en rojo y negativos.
+  - **Método de cobro / pago:** p. ej. "DOMICILIACIÓN" con el IBAN debajo, o "Efectivo"; enlaza a la cuenta.
+  - **Estado de la conciliación:** icono rojo (sin conciliar) o verde (conciliado con un movimiento
+    del banco).
+  - **Operaciones:** Consultar detalles del pago · Consultar documento relacionado · **Conciliar** ·
+    Gestionar etiquetas · Eliminar cobro / pago.
+- Muestra todo el histórico de la empresa, ordenado por fecha descendente y paginado.
+
+### Ventas / Compras — Cierre de trimestres
+
+- Migas de pan: `Facturación > Cierre de trimestres`.
+- **"Selecciona el trimestre a cerrar":**
+  - Botones **Cerrar trimestre anterior (2026-3T)** y **Cerrar trimestre actual (2026-4T)**.
+  - Bloque **"Cerrar otro trimestre"**: año, trimestre (1T–4T) y el botón **Cerrar trimestre**.
+- **"Listado de trimestres cerrados":** columnas **Trimestre · Estado** ("Cerrado" en rojo) **· Fecha de
+  cierre** (`dd/mm/aaaa hh:mm:ss`) **· Operaciones** (Reabrir, solo admin, pidiendo el motivo).
+- Efecto del cierre: en ese trimestre no se pueden crear, editar ni borrar facturas, gastos, cobros
+  ni pagos, y los formularios muestran el aviso de periodo cerrado.
+
 ### `[PENDIENTE]` resto de pantallas
 
-Formulario de nueva factura, PDF de la factura, Clientes, Proveedores, Catálogo, Gastos, Bancos,
-Impuestos, Informes, Otros y Configuración. Mientras lleguen las capturas, aplicar las funciones del
-apartado siguiente con el mismo estilo de listados (filtro de periodo, tabla ordenable, fila de
-totales, leyenda y panel de detalle).
+PDF de la factura, Catálogo, Gastos, Bienes de inversión, Movimientos y Conciliación, Recibos y
+remesas, Impuestos, Informes, Otros y Configuración. Hasta que lleguen sus capturas, seguir los mismos
+patrones de listado y formulario.
 
 ---
 
@@ -298,8 +441,9 @@ totales, leyenda y panel de detalle).
 6. **Bancos / Caja:** extractos, conciliación, cobros y pagos, recibos y remesas.
 7. **Impuestos e informes:** modelos, calendario fiscal, libros de IVA y cierre de trimestres.
 8. **Otros y disco virtual:** notas, jornada laboral, correo, mensajes y archivos.
-9. **Migración desde Contasimple:** importar las exportaciones de contactos, facturas emitidas y
-   recibidas, y comprobar que los totales por trimestre cuadran.
+9. **Migración desde Contasimple:** importar **todo el histórico** (hay datos desde 2021): contactos,
+   facturas emitidas y recibidas, cobros y pagos, y trimestres cerrados. Después, comprobar que los
+   totales por trimestre cuadran con Contasimple.
 
 ## Preguntas abiertas
 
