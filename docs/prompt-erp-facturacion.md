@@ -17,6 +17,29 @@ Vamos a añadir **dentro de esta misma app** un módulo de facturación y contab
 Contasimple. Se comparten el login, los usuarios y la base de datos. Las ventas facturadas deben poder
 alimentar los KPIs del cuadro de mandos.
 
+## La empresa y la multiempresa
+
+La empresa principal es una **SL de representación de jugadores (agencia deportiva) y abogacía**. La
+app debe ser **multiempresa desde el primer día**:
+- Tabla `companies`; **todas** las tablas del módulo llevan `company_id`, y todas las consultas filtran por él.
+- Selector de empresa en la cabecera. La empresa activa se guarda en la sesión.
+- Cada usuario tiene acceso a una o varias empresas, con un rol en cada una.
+- Cada empresa tiene sus propios datos fiscales, series, plan contable, bancos, ejercicios y cierres.
+- Configuración → Empresas → **Nueva empresa** crea una empresa con el plan contable, los impuestos y
+  las series por defecto. **Gestión de empresas** permite editarlas o archivarlas (nunca borrarlas si
+  tienen movimientos).
+- Tests que demuestren que un usuario nunca ve datos de una empresa a la que no tiene acceso.
+
+### Particularidades del negocio
+- **Representación de jugadores:** comisiones a clubes y jugadores, a menudo **cobradas en plazos
+  que abarcan varias temporadas** (vencimientos múltiples por factura) y a **clientes extranjeros**
+  (intracomunitarios con inversión del sujeto pasivo y modelo 349, o de fuera de la UE sin IVA). Facturas
+  en otra moneda (con tipo de cambio) y en inglés.
+- **Abogacía:** **suplidos** (gastos pagados en nombre del cliente: van en la factura pero fuera de la base
+  del IVA) y **provisiones de fondos** (anticipos que se descuentan en la factura final).
+- Como SL, sus facturas normalmente **no llevan retención IRPF**. La retención sí debe poder usarse en
+  facturas recibidas de profesionales (modelo 111) y en alquileres (modelo 115).
+
 ## Navegación
 
 El módulo tiene su propio **panel lateral** (rutas bajo `src/app/(app)/gestion/…`), con un botón
@@ -30,12 +53,12 @@ proveedor, producto, movimiento de banco). Menú, en este orden:
 | **Compras** | Facturas recibidas · Bienes de inversión · Gastos · OCR · Importar factura · Exportar · Importar · Cierre de trimestres |
 | **Contactos** | Clientes · Proveedores · Importar |
 | **Catálogo** | `[PENDIENTE captura]`. Previsto: Productos y servicios, Categorías, Tarifas |
-| **Bancos / Caja** | Resumen · Movimientos · Conciliación · Cobros y pagos · Recibos y remesas (submenú `[PENDIENTE]`) |
-| **Impuestos** | Resumen · Calendario fiscal · IVA (303, 390) · IRPF (130, 100) · Retenciones (111, 190) · Ret. alquileres (115, 180) · Op. terceras personas (347) · `[PENDIENTE: resto de la lista]` |
+| **Bancos / Caja** | Resumen · Movimientos · Conciliación · Cobros y pagos · Recibos y remesas (Recibos bancarios · Remesas · Recibos procesados · Devoluciones) |
+| **Impuestos** | Resumen · Calendario fiscal · IVA (303, 390) · Impuesto sobre Sociedades (200, 202) · Retenciones (111, 190) · Ret. alquileres (115, 180) · Op. terceras personas (347) · Intracomunitarias (349) · `[PENDIENTE: resto de la lista]` |
 | **Disco virtual** | Archivos y carpetas (adjuntos de facturas, tickets, documentos) |
 | **Informes** | Resumen · Pérdidas y ganancias · Informes de empresas · Informes de horas trabajadas. Añadir además: Balance, Libro diario, Libro mayor, Sumas y saldos, Libros registro de IVA, Ventas por cliente/producto |
 | **Otros** | Notas · Jornada laboral · Correo electrónico · Mensajes (submenú `[PENDIENTE]`) |
-| **Configuración** | Resumen · Ajustes de usuario · Ajustes de empresa · Otras opciones · Empresas (Nueva empresa, Gestión de empresas; solo si hay más de una, ver preguntas abiertas) |
+| **Configuración** | Resumen · Ajustes de usuario · Ajustes de empresa · Otras opciones · Empresas (Nueva empresa · Gestión de empresas) |
 
 **Fuera de alcance** (propio de Contasimple como producto): Mi plan, Marketplace y Contasimple TPV.
 
@@ -63,7 +86,7 @@ En el móvil, el panel lateral se convierte en un menú desplegable.
 - **Una factura emitida no se borra ni se edita:** se anula con una rectificativa. Registro de
   cambios (quién, cuándo, qué).
 - **Presupuestos → pedidos/albaranes → factura** (convertir con un clic, conservando el enlace).
-- PDF con el logo y los datos fiscales de Bocubi, reutilizando el sistema de impresión
+- PDF con el logo y los datos fiscales de la empresa activa, reutilizando el sistema de impresión
   `src/app/imprimir`. Envío por email con Resend.
 - **Exportar / Importar:** facturas y presupuestos a Excel y CSV, e importación con el asistente existente.
 - **Cierre de trimestres:** el mismo cierre que en Compras (es un único cierre por trimestre que bloquea
@@ -84,7 +107,12 @@ En el móvil, el panel lateral se convierte en un menú desplegable.
 - **Conciliación:** emparejar movimientos con facturas o vencimientos, con sugerencias automáticas por
   importe, fecha y concepto.
 - **Cobros y pagos:** registrar cobros y pagos totales o parciales; se generan sus asientos.
-- **Recibos y remesas:** remesas de adeudos SEPA (fichero `pain.008`) y transferencias (`pain.001`).
+- **Recibos y remesas:**
+  - Recibos bancarios: un recibo por cada vencimiento domiciliado (cliente, mandato SEPA, importe, fecha de cargo).
+  - Remesas: agrupar recibos y generar el fichero de adeudos SEPA (`pain.008`); remesas de pago a
+    proveedores por transferencia (`pain.001`).
+  - Recibos procesados: histórico de las remesas enviadas y su estado.
+  - Devoluciones: marcar un recibo como devuelto (con motivo y gastos), reabrir el vencimiento y generar su asiento.
 
 ### Contabilidad (sin menú propio; se ve en Informes)
 - Plan General Contable PYMES precargado y editable.
@@ -96,8 +124,9 @@ En el móvil, el panel lateral se convierte en un menú desplegable.
 
 ### Impuestos
 - Cálculo de **borradores** de los modelos a partir de los libros: 303/390 (IVA), 111/190 y 115/180
-  (retenciones), 347 (operaciones con terceros por encima de 3.005,06 €), y 130/100 solo si aplica
-  (ver pregunta abierta). Muestra casillas y totales y permite exportar el fichero de la AEAT cuando
+  (retenciones), 347 (operaciones con terceros por encima de 3.005,06 €), 349 (intracomunitarias) y
+  200/202 (Impuesto sobre Sociedades: pagos fraccionados y ayuda con la declaración anual a partir del
+  resultado contable). Los modelos 130 y 100 no se implementan: son de autónomos. Muestra casillas y totales y permite exportar el fichero de la AEAT cuando
   sea viable. **No se presenta nada automáticamente.**
 - Calendario fiscal con plazos y avisos por email (cron existente).
 - Libros registro de IVA (expedidas y recibidas).
@@ -182,11 +211,7 @@ rama, y la URL del preview.
 
 ## Preguntas abiertas (responder antes de la fase 1)
 
-- ¿Bocubi es **sociedad (SL)** o autónomo? Si es SL, los modelos 130/100 no aplican y se usan 200/202
-  (Impuesto sobre Sociedades).
 - ¿Régimen de IVA general? ¿Hay ventas intracomunitarias o exportaciones (modelo 349)?
 - ¿Qué series de facturación usáis hoy, y cuál es la última factura emitida de cada serie en 2026?
 - ¿Se cobra con domiciliación SEPA? ¿Con qué bancos trabajáis?
-- ¿Lleváis **más de una empresa** en Contasimple? Si es así, la app tiene que ser multiempresa desde el
-  principio, y esto afecta a todas las tablas.
 - ¿Usáis hoy Jornada laboral, Mensajes y Correo, o se pueden dejar para el final?
