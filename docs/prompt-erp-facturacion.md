@@ -1,8 +1,14 @@
 # Prompt: cabrelleserp — Facturación y Contabilidad (sustituto de Contasimple)
 
-> **Estado: BORRADOR.** Faltan las capturas marcadas como `[PENDIENTE]`. Cuando esté completo, se crea
-> un **repositorio nuevo** y se trabaja fase a fase (una fase = una rama = un preview de Vercel).
-> Este proyecto **no tiene relación con Bocubi**: este documento se guarda aquí solo de forma provisional.
+> **Estado:** fase 1 (base) construida. Se trabaja fase a fase (una fase = una rama = un preview de
+> Vercel). Lo marcado `[PENDIENTE]` espera captura o decisión.
+
+## Objetivo principal
+
+Emitir y recibir facturas **con el fin de presentar los impuestos a Hacienda**: la app calcula cada
+modelo a partir de las facturas del periodo (trimestre, mes o año) y **genera el fichero oficial para
+subirlo directamente a la Sede Electrónica de la AEAT**. Todo lo demás (bancos, informes, contabilidad
+completa) está al servicio de ese objetivo y va después.
 
 ---
 
@@ -420,10 +426,25 @@ patrones de listado y formulario.
   retención); cobro = 572 a 430.
 - Asientos manuales: apertura, cierre, regularización, nóminas…
 
-### Impuestos
-- **Borradores** calculados desde los libros: 303/390, 130/100 (autónomos), 200/202 (sociedades),
-  111/190, 115/180, 347 (más de 3.005,06 € por tercero) y 349. Se muestran las casillas y se exporta
-  el fichero de la AEAT cuando sea viable. **No se presenta nada automáticamente.**
+### Impuestos (prioridad máxima)
+- **Cálculo de cada modelo** desde las facturas del periodo, con todas sus casillas visibles y el detalle
+  de qué facturas suman en cada casilla (clic en la casilla → listado de facturas):
+  - **Trimestrales:** 303 (IVA), 130 (IRPF, autónomos), 111 (retenciones de profesionales y nóminas),
+    115 (retenciones de alquileres), 349 (intracomunitarias), 202 (pagos fraccionados, sociedades).
+  - **Anuales:** 390, 100 (solo los datos de la actividad), 190, 180, 347 y 200 (ayuda con el resultado
+    contable).
+  - **Mensual** si la empresa está en el régimen mensual (REDEME o grandes empresas): mismo cálculo por mes.
+- **Fichero oficial descargable** de cada modelo, con el **diseño de registro publicado por la AEAT** para
+  ese ejercicio, listo para "Importar" o "Presentar mediante fichero" en la Sede Electrónica. Debe pasar
+  la validación de la AEAT: hay tests con ficheros de ejemplo por modelo y ejercicio.
+- **Libros registro** de IVA (expedidas y recibidas) y, para autónomos, de ingresos y gastos (IRPF), en el
+  formato estándar de la AEAT (Excel/CSV), para entregar al gestor o atender un requerimiento.
+- Al **presentar**, se cierra el trimestre (no se pueden tocar sus facturas) y se guarda el fichero
+  generado, la fecha de presentación y el resultado (a ingresar / a devolver / a compensar). La
+  cantidad a compensar se arrastra sola al siguiente 303.
+- **Calendario fiscal** con los plazos de cada empresa (20 de abril, julio y octubre, 30 de enero…) y aviso
+  por email unos días antes, indicando el importe previsto.
+- **No se presenta nada automáticamente:** el usuario descarga el fichero y lo sube él mismo (o su gestor).
 - **Calendario fiscal** con plazos y avisos por email.
 - Libros registro de IVA de facturas expedidas y recibidas.
 
@@ -468,14 +489,16 @@ patrones de listado y formulario.
 
 ## Plan por fases (detente al final de cada una para revisar el preview)
 
-1. **Base:** proyecto, login, multiempresa, layout (cabecera, panel lateral, + Crear), Configuración
-   (empresa, usuarios, impuestos, series, métodos de pago), Contactos, Catálogo y plan contable.
+1. ✅ **Base:** proyecto, login, multiempresa, layout (cabecera, panel lateral, + Crear), Configuración
+   (empresa, usuarios, series, tesorería, métodos de pago, plan contable), Contactos (con los 54 de
+   Contasimple precargados) y Catálogo.
 2. **Ventas:** facturas emitidas, borradores, rectificativas, presupuestos, albaranes, PDF y email.
 3. **Compras:** facturas recibidas (con el panel de detalle), gastos, OCR, importar factura y bienes de inversión.
-4. **Inicio:** página principal completa.
-5. **Contabilidad:** asientos automáticos y manuales, diario, mayor, balance y PyG.
+4. **Impuestos:** modelos trimestrales y anuales, **ficheros AEAT**, libros registro, calendario fiscal y
+   cierre de trimestres.
+5. **Inicio:** página principal completa.
 6. **Bancos / Caja:** extractos, conciliación, cobros y pagos, recibos y remesas.
-7. **Impuestos e informes:** modelos, calendario fiscal, libros de IVA y cierre de trimestres.
+7. **Contabilidad e informes:** asientos automáticos y manuales, diario, mayor, balance y PyG.
 8. **Otros y disco virtual:** notas, jornada laboral, correo, mensajes y archivos.
 9. **Migración desde Contasimple:** importar **todo el histórico** (hay datos desde 2021): contactos,
    facturas emitidas y recibidas, cobros y pagos, y trimestres cerrados. Después, comprobar que los
@@ -483,7 +506,8 @@ patrones de listado y formulario.
 
 ## Preguntas abiertas
 
-- ¿Qué empresas se darán de alta al principio, y de qué tipo es cada una (autónomo o SL)?
-- ¿Qué series de facturación se usan, y cuál es la última factura emitida de cada una en 2026?
+- ¿Qué empresas se darán de alta al principio, y de qué tipo es cada una (autónomo o SL)? (La primera,
+  SIMON CABRELLES VENDRELL, autónomo, ya se crea en `/setup`.)
+- Última factura emitida en 2026 en Contasimple: 2026-0011 → la serie debe empezar en 12.
 - ¿Se cobra por domiciliación SEPA? ¿Con qué bancos se trabaja?
 - ¿Quién usará la app, y con qué rol?
