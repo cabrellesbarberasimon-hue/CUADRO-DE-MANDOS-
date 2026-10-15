@@ -395,6 +395,11 @@ patrones de listado y formulario.
 - **Presupuesto → albarán → factura**, convirtiendo con un clic y conservando el enlace entre documentos.
 - **PDF** con el logo y los datos fiscales de la empresa. **Envío por email** con Resend, y queda
   registrado en Otros → Correo electrónico.
+- **Recordatorio de impagados:** cuando una factura (o uno de sus plazos) vence sin cobrarse, se envía
+  un email al cliente con el PDF adjunto y los datos bancarios. Configurable por empresa (días tras el
+  vencimiento: por defecto 3, 15 y 30; texto en español o inglés según el idioma del cliente) y
+  desactivable por cliente. Cada envío queda en el historial de la factura y en Otros → Correo
+  electrónico. Nunca se envía a facturas cobradas, rectificadas o con un plazo aún no vencido.
 - **Exportar / Importar** a Excel y CSV. Las exportaciones grandes se generan en segundo plano, se
   dejan en el disco virtual y avisan con una notificación.
 - **Cierre de trimestres:** un único cierre por empresa y trimestre, que bloquea crear o modificar
@@ -442,8 +447,12 @@ patrones de listado y formulario.
 - Al **presentar**, se cierra el trimestre (no se pueden tocar sus facturas) y se guarda el fichero
   generado, la fecha de presentación y el resultado (a ingresar / a devolver / a compensar). La
   cantidad a compensar se arrastra sola al siguiente 303.
-- **Calendario fiscal** con los plazos de cada empresa (20 de abril, julio y octubre, 30 de enero…) y aviso
-  por email unos días antes, indicando el importe previsto.
+- **Calendario fiscal** con los plazos de cada empresa (20 de abril, julio y octubre, 30 de enero…).
+- **Aviso de plazos con importe:** email a los administradores de cada empresa 10 días y 3 días antes de
+  cada plazo, con una tabla de modelos y el **importe previsto** de cada uno (a ingresar / a devolver /
+  a compensar), un aviso de las facturas que faltan por registrar o revisar en ese periodo (borradores,
+  OCR sin confirmar) y un enlace directo para descargar los ficheros. Por cron diario (Vercel Cron) y con
+  Resend.
 - **No se presenta nada automáticamente:** el usuario descarga el fichero y lo sube él mismo (o su gestor).
 - **Calendario fiscal** con plazos y avisos por email.
 - Libros registro de IVA de facturas expedidas y recibidas.
@@ -494,15 +503,19 @@ patrones de listado y formulario.
    Contasimple precargados) y Catálogo.
 2. **Ventas:** facturas emitidas, borradores, rectificativas, presupuestos, albaranes, PDF y email.
 3. **Compras:** facturas recibidas (con el panel de detalle), gastos, OCR, importar factura y bienes de inversión.
-4. **Impuestos:** modelos trimestrales y anuales, **ficheros AEAT**, libros registro, calendario fiscal y
-   cierre de trimestres.
-5. **Inicio:** página principal completa.
-6. **Bancos / Caja:** extractos, conciliación, cobros y pagos, recibos y remesas.
-7. **Contabilidad e informes:** asientos automáticos y manuales, diario, mayor, balance y PyG.
-8. **Otros y disco virtual:** notas, jornada laboral, correo, mensajes y archivos.
-9. **Migración desde Contasimple:** importar **todo el histórico** (hay datos desde 2021): contactos,
-   facturas emitidas y recibidas, cobros y pagos, y trimestres cerrados. Después, comprobar que los
-   totales por trimestre cuadran con Contasimple.
+4. **Histórico desde Contasimple (2021–2026):** importar todas las facturas emitidas y recibidas,
+   cobros y pagos desde las exportaciones de Contasimple, y **comprobar que los totales de cada trimestre
+   coinciden** con lo que ya se presentó. Va antes de Impuestos para validar los cálculos con datos reales
+   y para que los modelos anuales (390, 347, 100/200) salgan completos.
+5. **Impuestos:** modelos trimestrales y anuales, **ficheros AEAT**, libros registro, calendario fiscal,
+   **aviso de plazos con importe** y cierre de trimestres.
+6. **Inicio:** página principal completa.
+7. **Bancos / Caja:** extractos, conciliación, cobros y pagos, recibos, remesas y **recordatorio de
+   impagados**.
+8. **Contabilidad e informes:** asientos automáticos y manuales, diario, mayor, balance y PyG.
+9. **Otros y disco virtual:** notas, jornada laboral, correo, mensajes y archivos.
+10. **Cambio definitivo:** importar lo último que se haya registrado en Contasimple desde la fase 4,
+    comprobar de nuevo los totales y dejar de usar Contasimple.
 
 ## Preguntas abiertas
 
