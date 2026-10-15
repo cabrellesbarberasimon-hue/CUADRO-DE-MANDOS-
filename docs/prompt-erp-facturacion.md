@@ -26,7 +26,7 @@ proveedor, producto, movimiento de banco). Menú, en este orden:
 | Sección | Subapartados |
 |---|---|
 | **Inicio** | Panel: ventas, gastos y resultado del trimestre/año, cobros y pagos pendientes, vencidos, saldo de bancos, próximos impuestos |
-| **Ventas** | `[PENDIENTE captura]`. Previsto: Facturas emitidas, Presupuestos, Albaranes, Facturas proforma, Facturas recurrentes, Exportar, Importar |
+| **Ventas** | Facturas emitidas · Facturas borrador · Albaranes · Presupuestos · Exportar · Importar · Cierre de trimestres |
 | **Compras** | Facturas recibidas · Bienes de inversión · Gastos · OCR · Importar factura · Exportar · Importar · Cierre de trimestres |
 | **Contactos** | Clientes · Proveedores · Importar |
 | **Catálogo** | `[PENDIENTE captura]`. Previsto: Productos y servicios, Categorías, Tarifas |
@@ -35,7 +35,7 @@ proveedor, producto, movimiento de banco). Menú, en este orden:
 | **Disco virtual** | Archivos y carpetas (adjuntos de facturas, tickets, documentos) |
 | **Informes** | Resumen · Pérdidas y ganancias · Informes de empresas · Informes de horas trabajadas. Añadir además: Balance, Libro diario, Libro mayor, Sumas y saldos, Libros registro de IVA, Ventas por cliente/producto |
 | **Otros** | Notas · Jornada laboral · Correo electrónico · Mensajes (submenú `[PENDIENTE]`) |
-| **Configuración** | Resumen · Ajustes de usuario · Ajustes de empresa · Otras opciones `[PENDIENTE]` · Empresas (solo si hay más de una, ver preguntas abiertas) |
+| **Configuración** | Resumen · Ajustes de usuario · Ajustes de empresa · Otras opciones · Empresas (Nueva empresa, Gestión de empresas; solo si hay más de una, ver preguntas abiertas) |
 
 **Fuera de alcance** (propio de Contasimple como producto): Mi plan, Marketplace y Contasimple TPV.
 
@@ -54,6 +54,8 @@ En el móvil, el panel lateral se convierte en un menú desplegable.
   cuenta de ventas (70x).
 
 ### Ventas
+- **Facturas borrador:** listado propio de los borradores (sin número) para revisarlos y emitirlos uno
+  a uno o en lote.
 - **Facturas emitidas:** series (p. ej. `F2026-`, `R2026-` para rectificativas). Numeración correlativa
   por serie y año, **sin huecos**, asignada al emitir (los borradores no tienen número). Líneas con
   cantidad, precio, descuento y tipo de IVA. Recargo de equivalencia, retención IRPF, varios
@@ -63,7 +65,9 @@ En el móvil, el panel lateral se convierte en un menú desplegable.
 - **Presupuestos → pedidos/albaranes → factura** (convertir con un clic, conservando el enlace).
 - PDF con el logo y los datos fiscales de Bocubi, reutilizando el sistema de impresión
   `src/app/imprimir`. Envío por email con Resend.
-- Facturas recurrentes, generadas por cron.
+- **Exportar / Importar:** facturas y presupuestos a Excel y CSV, e importación con el asistente existente.
+- **Cierre de trimestres:** el mismo cierre que en Compras (es un único cierre por trimestre que bloquea
+  ventas y compras).
 
 ### Compras
 - Facturas recibidas y gastos (con el mismo modelo de líneas que las ventas), con adjunto PDF o imagen.
@@ -124,7 +128,24 @@ En el móvil, el panel lateral se convierte en un menú desplegable.
   - Facturas borrador.
   - Presupuestos y albaranes: series, validez y textos.
   - Impuestos: tipos de IVA, recargo y retenciones disponibles.
-  - `[PENDIENTE: resto de la lista]`.
+  - Cuentas de tesorería: bancos y caja, con IBAN y cuenta contable 57x.
+  - Métodos de pago y cobro: transferencia, domiciliación, tarjeta, efectivo… con sus días de vencimiento.
+  - Cuentas contables: el plan PGC PYMES, editable.
+  - Certificados digitales: subir el certificado de la empresa (cifrado) para Verifactu y la AEAT en el futuro.
+  - Clientes/proveedores y Catálogo: valores por defecto (cuentas, IVA, forma de pago, numeración de referencias).
+  - Gestión de usuarios: reutilizar la página Usuarios existente y añadir el permiso `gestion`.
+  - Gestión de etiquetas: etiquetas libres con color para facturas, gastos, contactos y productos, filtrables en los listados.
+  - Centros administrativos: los datos DIR3 (oficina contable, órgano gestor, unidad tramitadora) para
+    facturar a administraciones públicas.
+  - `[PENDIENTE: confirmar si hay algún apartado entre Impuestos y Cuentas de tesorería]`.
+- **Otras opciones:**
+  - Ordenación y filtrado: orden y filtros por defecto de cada listado, por usuario.
+  - Aplicaciones externas: claves de integraciones (p. ej. la API de Anthropic para el OCR), guardadas
+    como variables de entorno, nunca en la base de datos en claro.
+  - Remesas bancarias: identificador de acreedor SEPA, sufijo y cuenta de cargo.
+  - Configuración de correo: remitente, firma y plantillas.
+  - Tareas en segundo plano: estado de importaciones, remesas y envíos masivos.
+  - Importar: punto único de importación de datos.
 
 ### Disco virtual
 - Almacenamiento de archivos (Vercel Blob) con carpetas, enlazado a facturas y gastos.
