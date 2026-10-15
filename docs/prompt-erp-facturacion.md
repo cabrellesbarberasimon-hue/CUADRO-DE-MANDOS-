@@ -1,4 +1,4 @@
-# Prompt: app de Facturación y Contabilidad (sustituto de Contasimple)
+# Prompt: cabrelleserp — Facturación y Contabilidad (sustituto de Contasimple)
 
 > **Estado: BORRADOR.** Faltan las capturas marcadas como `[PENDIENTE]`. Cuando esté completo, se crea
 > un **repositorio nuevo** y se trabaja fase a fase (una fase = una rama = un preview de Vercel).
@@ -13,10 +13,10 @@ a Contasimple. Debe ser en **español de España**: formato `1.234,56 €`, fech
 por trimestre (`2026-3T`).
 
 **Stack:** Next.js 15 (App Router, Server Components + Server Actions) · TypeScript estricto ·
-Tailwind CSS 4 · Postgres (`postgres`; en local, PGlite) · migraciones versionadas e inmutables ·
+Tailwind CSS 4 · Postgres en **Neon** (driver `postgres`; en local, PGlite) · migraciones versionadas e inmutables ·
 consultas parametrizadas · auth propia (bcrypt + JWT en cookie) · Resend (emails) · Anthropic SDK
 (OCR de facturas) · Vercel Blob (archivos) · Recharts (gráficos) · ExcelJS (importar/exportar) ·
-Vitest · despliegue en Vercel.
+Vitest · repositorio en **GitHub** (`cabrellesbarberasimon-hue/cabrelleserp`) y despliegue en **Vercel**.
 
 Crea un `CLAUDE.md` con las reglas del proyecto y una página de **Novedades** (changelog en lenguaje de
 negocio) que se actualice en cada cambio. Antes de cada commit: `lint`, `typecheck` y `test`.
@@ -82,7 +82,7 @@ negocio) que se actualice en cada cambio. Antes de cada commit: `lint`, `typeche
 | **Impuestos** | Resumen · Calendario fiscal · IVA (303, 390) · IRPF (130, 100), solo autónomos · Impuesto sobre Sociedades (200, 202), solo sociedades · Retenciones (111, 190) · Ret. alquileres (115, 180) · Op. terceras personas (347) · Intracomunitarias (349) · `[PENDIENTE: resto de la lista]` |
 | **Disco virtual** | Archivos y carpetas (adjuntos de facturas, exportaciones, documentos) |
 | **Informes** | Resumen · Pérdidas y ganancias · Informes de empresas · Informes de horas trabajadas · Balance · Libro diario · Libro mayor · Sumas y saldos · Libros registro de IVA |
-| **Otros** | Notas · Jornada laboral · Correo electrónico · Mensajes |
+| **Otros** | Notas · Jornada laboral · Correo electrónico · Mensajes (Mensajes recibidos · Mensajes enviados, con + para uno nuevo) |
 | **Configuración** | Resumen · Ajustes de usuario · Ajustes de empresa · Otras opciones · Empresas |
 
 **Fuera de alcance:** Mi plan, Marketplace y TPV (son propios de Contasimple como producto).
@@ -139,6 +139,42 @@ un trimestre como `2026-4T`, o el año completo `2026`). Bloques, de arriba abaj
   - **Fila TOTALES** al final, con las sumas de base imponible, IVA, retención y total.
 - **Leyenda:** las filas de facturas **vencidas y no cobradas** se resaltan con un color, explicado
   bajo la tabla.
+
+- **Panel de detalle de una factura emitida** (al pulsar el número), titulado "Detalle de la factura
+  emitida número X":
+  - **Información de la factura:** Periodo · Número · Fecha · Fecha de vencimiento · Tipo de ingreso
+    (p. ej. `705. Prestación de servicios`) · Estado · Notas privadas · Retención · Notas en la factura ·
+    Fecha de operación · Tipo de operación · Criterio de caja.
+  - **Información del cliente:** nombre o razón social, NIF y dirección.
+  - Líneas y totales.
+  - Botones: **Descargar factura** · **Editar factura** (solo si no está emitida definitivamente; si lo
+    está, ofrece "Crear rectificativa") · **Cerrar**.
+
+### Ventas — PDF de la factura (A4 vertical, Helvetica/Arial, en blanco y negro)
+
+1. **Cabecera:**
+   - A la izquierda: nombre o razón social del emisor (en negrita), dirección, CP y provincia,
+     población y país, y NIF. Logo opcional encima.
+   - A la derecha, alineada arriba: la **fecha** de la factura (en negrita).
+2. **Título** centrado y grande: **FACTURA** (o "FACTURA RECTIFICATIVA", "PRESUPUESTO", "ALBARÁN"; en
+   inglés, INVOICE).
+3. **"Número de factura: 2026-0010"** en negrita. Si es rectificativa, debajo: "Rectifica a la factura
+   X de fecha Y".
+4. **Recuadro del cliente:** nombre (en negrita), dirección, CP y población, provincia y país, teléfono,
+   web (Url) y NIF.
+5. **Tabla de conceptos** con cabecera gris: **CONCEPTO · UDS. · BASE UD. · BASE TOTAL · % IVA · IVA**
+   (y **DTO.** solo si alguna línea lleva descuento). Debajo de cada línea puede ir una **descripción
+   ampliada** en negrita y a ancho completo (p. ej. "10 % sobre 30.000 €").
+6. **Al pie de la página:**
+   - **Desglose de impuestos** con cabecera gris: **BASE IMPONIBLE · TIPO IMPUESTO · IMPUESTO**. Una
+     fila por impuesto: "IVA 21 %" con su importe, y "Retención 15 %" en negativo.
+   - Debajo y a la derecha, el **recuadro de totales**: Total base imponible · Total IVA · Total
+     retención (negativo) · **TOTAL** (en negrita). Si hay suplidos o provisiones de fondos, salen
+     como filas propias antes del TOTAL.
+7. **Notas en la factura** al pie, p. ej. **"CUENTA BANCARIA: ESxx xxxx xxxx xxxx xxxx xxxx"** en
+   negrita, más los textos legales que correspondan: exención de IVA, inversión del sujeto pasivo o
+   criterio de caja. Sin publicidad de ningún tipo.
+8. Si la factura ocupa varias páginas, se pone "Página X de Y" y la cabecera de la tabla se repite.
 
 ### Ventas — Presupuestos
 
@@ -402,7 +438,7 @@ patrones de listado y formulario.
 - **Jornada laboral:** fichaje de entrada, salida y pausas, desde el móvil. Una edición solo la puede
   hacer un admin, con motivo registrado. Exportación mensual por trabajador (registro horario obligatorio).
 - **Correo electrónico:** historial de envíos y plantillas.
-- **Mensajes:** mensajes internos entre los usuarios de la empresa, más los avisos del sistema.
+- **Mensajes:** bandeja de **Mensajes recibidos** y **Mensajes enviados** (con + para redactar uno nuevo) entre los usuarios de la empresa, más los avisos del sistema.
 
 ### Configuración
 - **Ajustes de usuario:** credenciales de acceso, datos personales y estadísticas de uso.
