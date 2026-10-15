@@ -33,7 +33,11 @@ proveedor, producto, movimiento de banco). Menú, en este orden:
 | **Bancos / Caja** | Resumen · Movimientos · Conciliación · Cobros y pagos · Recibos y remesas (submenú `[PENDIENTE]`) |
 | **Impuestos** | Resumen · Calendario fiscal · IVA (303, 390) · IRPF (130, 100) · Retenciones (111, 190) · Ret. alquileres (115, 180) · Op. terceras personas (347) · `[PENDIENTE: resto de la lista]` |
 | **Disco virtual** | Archivos y carpetas (adjuntos de facturas, tickets, documentos) |
-| **Informes** | `[PENDIENTE captura]`. Previsto: Pérdidas y ganancias, Balance, Libro diario, Libro mayor, Sumas y saldos, Libros registro de IVA, Ventas por cliente/producto |
+| **Informes** | Resumen · Pérdidas y ganancias · Informes de empresas · Informes de horas trabajadas. Añadir además: Balance, Libro diario, Libro mayor, Sumas y saldos, Libros registro de IVA, Ventas por cliente/producto |
+| **Otros** | Notas · Jornada laboral · Correo electrónico · Mensajes (submenú `[PENDIENTE]`) |
+| **Configuración** | Resumen · Ajustes de usuario · Ajustes de empresa · Otras opciones `[PENDIENTE]` · Empresas (solo si hay más de una, ver preguntas abiertas) |
+
+**Fuera de alcance** (propio de Contasimple como producto): Mi plan, Marketplace y Contasimple TPV.
 
 En el móvil, el panel lateral se convierte en un menú desplegable.
 
@@ -94,6 +98,34 @@ En el móvil, el panel lateral se convierte en un menú desplegable.
 - Calendario fiscal con plazos y avisos por email (cron existente).
 - Libros registro de IVA (expedidas y recibidas).
 
+### Informes
+- **Resumen:** ingresos, gastos y resultado por mes, trimestre y año, comparados con el año anterior.
+- **Pérdidas y ganancias** y **balance** según el PGC PYMES, con detalle por cuenta.
+- **Informes de empresas:** ventas y compras por cliente y proveedor, saldos pendientes y antigüedad de deuda.
+- **Horas trabajadas:** a partir de Jornada laboral, por persona y periodo.
+- Todo exportable a Excel y PDF.
+
+### Otros
+- **Notas:** notas internas, opcionalmente enlazadas a un cliente, proveedor o documento.
+- **Jornada laboral:** registro diario de entrada y salida, con pausas, para cumplir el registro horario
+  obligatorio. Fichaje desde el móvil, edición solo por admin con motivo registrado, y exportación
+  mensual por trabajador.
+- **Correo electrónico:** historial de los emails enviados desde la app (facturas, presupuestos,
+  recordatorios de cobro) y plantillas editables. Envío con Resend.
+- **Mensajes:** `[PENDIENTE captura]`.
+
+### Configuración
+- **Ajustes de usuario** (credenciales de acceso, datos personales, estadísticas): reutilizar las
+  páginas de Perfil y Usuarios que ya existen.
+- **Ajustes de empresa:**
+  - Datos de la empresa: razón social, CIF, domicilio, logo e IBAN.
+  - Sistema VERI*FACTU: pantalla informativa ("no activado") por ahora.
+  - Facturas: series, numeración, textos legales, pie, plantilla del PDF y vencimientos por defecto.
+  - Facturas borrador.
+  - Presupuestos y albaranes: series, validez y textos.
+  - Impuestos: tipos de IVA, recargo y retenciones disponibles.
+  - `[PENDIENTE: resto de la lista]`.
+
 ### Disco virtual
 - Almacenamiento de archivos (Vercel Blob) con carpetas, enlazado a facturas y gastos.
 
@@ -111,18 +143,18 @@ En el móvil, el panel lateral se convierte en un menú desplegable.
   borrables, registro de eventos y un campo para huella/encadenado reservado para el futuro.
 - Permisos: nuevo permiso `gestion` en `src/lib/auth.ts`. Admin = todo; editor = crear y editar;
   lector = solo ver. Cierres y reaperturas, solo admin.
-- Datos de la empresa (razón social, CIF, domicilio, logo, IBAN, series, ejercicio) en
-  **Configuración → Empresa**.
+- Datos de la empresa y ajustes de documentos en **Configuración → Ajustes de empresa** (ver arriba).
 
 ## Plan por fases (detente al final de cada una para revisar el preview)
 
-1. **Base:** layout con panel lateral, Configuración → Empresa, Contactos, Catálogo y plan contable.
+1. **Base:** layout con panel lateral, Configuración → Ajustes de empresa, Contactos, Catálogo y plan contable.
 2. **Ventas:** presupuestos, albaranes, facturas, rectificativas, PDF, email y recurrentes.
 3. **Compras:** facturas recibidas, gastos, OCR, importación y bienes de inversión.
 4. **Contabilidad:** asientos automáticos y manuales; diario, mayor, balance y PyG.
 5. **Bancos / Caja:** extractos, conciliación, cobros y pagos, remesas SEPA.
 6. **Impuestos e informes:** modelos, calendario fiscal, libros de IVA y cierre de trimestres.
-7. **Importar desde Contasimple** (exportaciones Excel) y conexión con el cuadro de mandos.
+7. **Otros:** notas, jornada laboral con informe de horas, historial de correo y mensajes.
+8. **Importar desde Contasimple** (exportaciones Excel) y conexión con el cuadro de mandos.
 
 En cada fase: migración nueva, pantallas, acciones, tests, entrada en el changelog, commit y push a la
 rama, y la URL del preview.
@@ -134,3 +166,6 @@ rama, y la URL del preview.
 - ¿Régimen de IVA general? ¿Hay ventas intracomunitarias o exportaciones (modelo 349)?
 - ¿Qué series de facturación usáis hoy, y cuál es la última factura emitida de cada serie en 2026?
 - ¿Se cobra con domiciliación SEPA? ¿Con qué bancos trabajáis?
+- ¿Lleváis **más de una empresa** en Contasimple? Si es así, la app tiene que ser multiempresa desde el
+  principio, y esto afecta a todas las tablas.
+- ¿Usáis hoy Jornada laboral, Mensajes y Correo, o se pueden dejar para el final?
